@@ -64,11 +64,11 @@ func (R *RequestParams) ValidateRequestParams() error {
 *网络请求封装
  */
 
-func BaseRequest(params RequestParams) []byte {
+func BaseRequest(params RequestParams) ([]byte, error) {
 
 	if err := params.ValidateRequestParams(); err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), params.TimeOut)
@@ -79,14 +79,14 @@ func BaseRequest(params RequestParams) []byte {
 
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 
 	req, err := http.NewRequest(params.Method, params.Url, bytes.NewBuffer(bodyByte))
 
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 
 	req = req.WithContext(ctx)
@@ -115,7 +115,7 @@ func BaseRequest(params RequestParams) []byte {
 	res, err := client.Do(req)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	//一定要关闭res.Body
@@ -129,10 +129,10 @@ func BaseRequest(params RequestParams) []byte {
 	resBody, err := io.ReadAll(res.Body) //把  body 内容读入字符串 s
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return resBody
+	return resBody, nil
 
 }
 
@@ -149,21 +149,21 @@ func handlerDefaultTimeOut(other ...time.Duration) time.Duration {
 type ClientMain struct{}
 
 // GET http Get method
-func (ClientMain) GET(url string, params map[string]interface{}, headers map[string]interface{}, other ...time.Duration) []byte {
-	resBody := BaseRequest(RequestParams{
+func (ClientMain) GET(url string, params map[string]interface{}, headers map[string]interface{}, other ...time.Duration) ([]byte, error) {
+	resBody, err := BaseRequest(RequestParams{
 		Method:  "GET",
 		Url:     url,
 		Params:  params,
 		Headers: headers,
 		TimeOut: handlerDefaultTimeOut(other...),
 	})
-	return resBody
+	return resBody, err
 }
 
 // POST http post method
-func (ClientMain) POST(url string, params map[string]interface{}, headers map[string]interface{}, body interface{}, other ...time.Duration) []byte {
+func (ClientMain) POST(url string, params map[string]interface{}, headers map[string]interface{}, body interface{}, other ...time.Duration) ([]byte, error) {
 
-	resBody := BaseRequest(RequestParams{
+	resBody, err := BaseRequest(RequestParams{
 		Method:  "POST",
 		Url:     url,
 		Params:  params,
@@ -171,7 +171,7 @@ func (ClientMain) POST(url string, params map[string]interface{}, headers map[st
 		Body:    body,
 		TimeOut: handlerDefaultTimeOut(other...),
 	})
-	return resBody
+	return resBody, err
 }
 
 var Client = ClientMain{}

@@ -63,7 +63,7 @@ func (config *Config) GetHeaders() map[string]interface{} {
 //	@param url
 //	@param params
 //	@return []byte
-func (config *Config) GET(url string, params map[string]interface{}, other ...time.Duration) []byte {
+func (config *Config) GET(url string, params map[string]interface{}, other ...time.Duration) ([]byte, error) {
 	return Client.GET(url, params, config.GetHeaders(), other...)
 }
 
@@ -75,7 +75,7 @@ func (config *Config) GET(url string, params map[string]interface{}, other ...ti
 //	@param params
 //	@param body
 //	@return []byte
-func (config *Config) POST(url string, params map[string]interface{}, body interface{}, other ...time.Duration) []byte {
+func (config *Config) POST(url string, params map[string]interface{}, body interface{}, other ...time.Duration) ([]byte, error) {
 	return Client.POST(url, params, config.GetHeaders(), body, other...)
 }
 
@@ -117,7 +117,7 @@ func (config *Config) GetAccessToken() bool {
 
 	BASEURL := "https://api.bokao2o.com/auth/merchant/v2/user/login"
 
-	res := Client.POST(
+	res, err := Client.POST(
 		BASEURL,
 		nil,
 		map[string]interface{}{
@@ -131,7 +131,14 @@ func (config *Config) GetAccessToken() bool {
 			"source":   config.Source,
 		})
 
-	err := json.Unmarshal(res, &data)
+	if err != nil {
+		config.Token = Token{
+			Error: err,
+		}
+		return false
+	}
+
+	err = json.Unmarshal(res, &data)
 
 	if err != nil {
 		config.Token = Token{
