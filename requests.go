@@ -18,7 +18,7 @@ import (
  */
 
 const (
-	UserAgent       = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.40(0x1800282b) NetType/WIFI Language/zh_CN"
+	UserAgent       = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.40(0x1800282b) NetType/WIFI Language/zh_CN"
 	PostContentType = "application/json;charset=UTF-8"
 	DefaultTimeOut  = 10 * time.Second
 )
